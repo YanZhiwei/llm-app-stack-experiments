@@ -1,0 +1,17 @@
+# OpenAI API Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Optional: OpenAI API Base URL (for custom endpoints)
+# OPENAI_API_BASE=https://api.openai.com/v1
+
+# Optional: OpenAI Organization ID
+# OPENAI_ORG_ID=your_org_id_here
+
+# Vector Database Settings
+CHROMA_PERSIST_DIRECTORY=./chroma_db
+ADVANCED_CHROMA_PERSIST_DIRECTORY=./advanced_chroma_db
+
+# Model Settings
+DEFAULT_MODEL=gpt-4
+DEFAULT_EMBEDDING_MODEL=text-embedding-3-large
+DEFAULT_TEMPERATURE=0.1 
