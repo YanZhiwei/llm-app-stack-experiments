@@ -21,6 +21,7 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_community.document_loaders import TextLoader, DirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_openai import AzureOpenAI,AzureEmbeddings
 
 # 加载环境变量
 load_dotenv()
@@ -40,12 +41,12 @@ class RAGSystem:
         self.temperature = temperature
         
         # 初始化OpenAI组件
-        self.llm = ChatOpenAI(
+        self.llm = AzureOpenAI(
             model=model_name,
             temperature=temperature
         )
         
-        self.embeddings = OpenAIEmbeddings(
+        self.embeddings = AzureEmbeddings(
             model="text-embedding-3-large"  # 使用最新的嵌入模型
         )
         
