@@ -31,8 +31,9 @@
 llm-app-stack-experiments/
 │
 ├── README.md                # 项目概述、学习计划、环境配置
-├── requirements.txt         # 依赖包列表（pip用）
-├── environment.yml          # Micromamba/Conda环境配置
+├── pyproject.toml           # 项目配置和依赖管理（uv用）
+├── uv.lock                  # 锁定的依赖版本文件
+├── .python-version          # Python版本指定
 ├── docs/                    # 学习笔记、技术总结、踩坑记录
 ├── notebooks/               # Jupyter 实验和探索
 ├── scripts/                 # 辅助脚本、工具
@@ -53,26 +54,40 @@ llm-app-stack-experiments/
 
 ## 环境设置
 
-### 方法一：使用自动设置脚本（推荐）
+### 使用 uv 包管理器（推荐）
+
+本项目使用 [uv](https://github.com/astral-sh/uv) 作为 Python 包管理器，提供更快的依赖解析和安装速度。
+
+#### 安装 uv
 
 ```bash
 # Linux/macOS
-chmod +x scripts/setup.sh
-./scripts/setup.sh
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Windows
-scripts\setup.bat
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# 或者使用 pip 安装
+pip install uv
 ```
 
-### 方法二：手动设置
+#### 环境设置
 
 ```bash
-# 使用 micromamba 创建并激活环境
-micromamba create -f environment.yml
-micromamba activate llm-app-stack
+# 创建虚拟环境并安装依赖
+uv venv
 
-# 或者使用 requirements.txt（如果偏好使用 pip）
-# pip install -r requirements.txt
+# 激活环境
+# Linux/macOS
+source .venv/bin/activate
+# Windows
+.venv\Scripts\activate
+
+# 安装项目依赖
+uv pip install -e .
+
+# 或者直接使用 uv 运行（自动管理环境）
+uv run python main.py
 ```
 
 ## 配置说明
@@ -89,14 +104,24 @@ cp configs/example.env .env
 ### 常用命令
 
 ```bash
-# 激活环境
-micromamba activate llm-app-stack
+# 使用 uv 运行脚本（自动管理环境）
+uv run python langchain/xxx.py
+uv run python rag/quick_start.py
 
 # 启动 Jupyter Notebook
-jupyter notebook notebooks/
+uv run jupyter notebook notebooks/
 
-# 运行实验脚本
-python langchain/xxx.py
+# 添加新依赖
+uv add package_name
+
+# 移除依赖
+uv remove package_name
+
+# 更新依赖
+uv lock --upgrade
+
+# 查看项目信息
+uv tree
 ```
 
 ## 学习笔记
