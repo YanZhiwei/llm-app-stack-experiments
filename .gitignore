@@ -76,4 +76,4 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp 
-chroma_db/
+chroma_db/*
