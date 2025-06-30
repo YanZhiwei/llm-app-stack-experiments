@@ -77,3 +77,4 @@ Thumbs.db
 *.tmp
 *.temp 
 chroma_db/*
+*/chroma_db/*

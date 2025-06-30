@@ -11,7 +11,6 @@
 import os
 from typing import Any, List, Optional
 
-from check_env import check_azure_openai_config
 from dotenv import load_dotenv
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_community.vectorstores import Chroma
@@ -21,6 +20,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+from check_env import check_azure_openai_config
 
 # 加载环境变量
 load_dotenv()
@@ -236,7 +237,7 @@ def main():
                     api_version=api_version, temperature=0.1)
 
     # 示例：使用示例文档
-    sample_docs_path = "rag/sample_docs"
+    sample_docs_path = "sample_docs"
 
     try:
         # 设置RAG系统
