@@ -78,3 +78,4 @@ Thumbs.db
 *.temp 
 chroma_db/*
 */chroma_db/*
+**/.venv/

@@ -1,0 +1,21 @@
+# 实验结构与环境管理规则（Cursor Rule）
+
+- 一级目录（如 langchain、rag、agents 等）区分不同实验或技术栈模块。
+- 每个实验/模块目录下应有独立的 Python 虚拟环境和依赖管理文件（pyproject.toml、uv.lock）。
+- 必须统一使用 uv 进行环境初始化、依赖安装、包管理和脚本运行。
+- 各实验/模块的环境变量和配置文件应独立，避免冲突。
+- 全局共享资源（如 docs、notebooks、datasets）位于项目根目录下。
+- 每个实验/模块目录应根据 Python 脚本内容，合理识别并添加所需依赖，确保依赖完整性和可复现性。
+- 每个 Python 文件描述一个独立示例，若示例较复杂应新建子文件夹组织。
+- 如涉及大模型和向量，统一采用 Azure OpenAI 的 gpt-4o-min（大模型）和 text-embedding-3-large（向量模型）。
+
+**推荐操作流程：**
+1. 进入实验/模块目录
+2. 初始化 uv 项目：`uv init`
+3. 创建虚拟环境：`uv venv --python 3.12 .venv`
+4. 安装依赖包：`uv add <package>`
+5. 生成依赖锁定文件：`uv lock`
+6. 运行脚本：`uv run python xxx.py`
+
+alwaysApply: true
+---
