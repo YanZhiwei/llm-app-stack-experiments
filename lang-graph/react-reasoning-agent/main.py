@@ -58,14 +58,14 @@ async def main():
     # '''
 
     # # 9. 🧠 复杂推理 + 多工具组合 (综合任务)
-    # demo_question = '''
-    # 帮我规划一个周末的上海一日游：查询明天天气，推荐适合的景点，计算大概费用，并生成一个详细的出行计划Markdown报告
-    # '''
+    demo_question = '''
+  帮我规划一个周末的上海一日游：查询明天天气，推荐适合的景点，计算大概费用，并生成一个详细的出行计划Markdown报告
+    '''
 
     # # 10. 📊 数据分析 + 日志统计 (日志分析工具)
-    demo_question = '''
-    我需要规划一个AI 销售 Agent项目，帮我分析步骤并生成并保存Markdown报告
-    '''
+    # demo_question = '''
+    # 我需要规划一个AI 销售 Agent项目，帮我分析步骤并生成并保存Markdown报告
+    # '''
 
     print(f"🤔 用户问题: {demo_question}")
     print("🚀 开始推理...")
