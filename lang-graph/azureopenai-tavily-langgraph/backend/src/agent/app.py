@@ -1,5 +1,6 @@
 # mypy: disable - error - code = "no-untyped-def,misc"
 import pathlib
+
 from fastapi import FastAPI, Response
 from fastapi.staticfiles import StaticFiles
 
@@ -7,16 +8,18 @@ from fastapi.staticfiles import StaticFiles
 app = FastAPI()
 
 
-def create_frontend_router(build_dir="../frontend/dist"):
+def create_frontend_router(build_dir="frontend/dist"):
     """Creates a router to serve the React frontend.
 
     Args:
-        build_dir: Path to the React build directory relative to this file.
+        build_dir: Path to the React build directory relative to the project root.
 
     Returns:
         A Starlette application serving the frontend.
     """
-    build_path = pathlib.Path(__file__).parent.parent.parent / build_dir
+    # Get the project root directory (two levels up from backend)
+    project_root = pathlib.Path(__file__).parent.parent.parent.parent
+    build_path = project_root / build_dir
 
     if not build_path.is_dir() or not (build_path / "index.html").is_file():
         print(

@@ -12,8 +12,8 @@ dependencies = [
     "langgraph>=0.2.6",
     "langchain>=0.3.19",
     "langchain-google-genai",
-    "langchain-openai>=0.1.0",  # 新增 AzureOpenAI 支持
-    "tavily-python>=0.7.0",  # Tavily 官方 Python 包
+    "langchain-openai>=0.1.0", # 新增 AzureOpenAI 支持
+    "tavily-python>=0.7.0", # Tavily 官方 Python 包
     "python-dotenv>=1.0.1",
     "langgraph-sdk>=0.1.57",
     "langgraph-cli",
@@ -23,6 +23,7 @@ dependencies = [
     "requests>=2.31.0",
     "fastapi",
     "uvicorn",
+    "autoflake>=2.3.1",
 ]
 
 

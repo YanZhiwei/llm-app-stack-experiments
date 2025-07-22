@@ -43,7 +43,7 @@ if missing_vars:
         f"Missing Azure OpenAI environment variables: {', '.join(missing_vars)}")
 
 
-load_dotenv()
+load_dotenv(encoding="utf-8")
 
 # 移除所有与 GEMINI 相关的 import
 # from google.genai import Client
@@ -116,16 +116,22 @@ async def tavily_search(query, api_key):
     Returns:
         A list of search results from Tavily.
     """
-    client = TavilyClient(api_key=api_key)
-    response = client.search(query, search_depth="basic", max_results=3)
-    results = []
-    for item in response.get('results', []):
-        results.append({
-            'title': item.get('title', ''),
-            'url': item.get('url', ''),
-            'content': item.get('content', '')[:500]
-        })
-    return results
+    import asyncio
+    
+    def _sync_tavily_search(query, api_key):
+        client = TavilyClient(api_key=api_key)
+        response = client.search(query, search_depth="basic", max_results=3)
+        results = []
+        for item in response.get('results', []):
+            results.append({
+                'title': item.get('title', ''),
+                'url': item.get('url', ''),
+                'content': item.get('content', '')[:500]
+            })
+        return results
+    
+    # Run the blocking Tavily search in a separate thread
+    return await asyncio.to_thread(_sync_tavily_search, query, api_key)
 
 
 def continue_to_web_research(state: QueryGenerationState):
@@ -139,15 +145,13 @@ def continue_to_web_research(state: QueryGenerationState):
     ]
 
 
-def web_research(state: WebSearchState, config: RunnableConfig) -> dict:
+async def web_research(state: WebSearchState, config: RunnableConfig) -> dict:
     # logger.info("🌐 [deepresearcher] 执行网络搜索...")  # 移除冗余日志
     configurable = Configuration.from_runnable_config(config)
     query = state["search_query"]
     all_results = []
     if configurable.tavily_api_key:
-        import asyncio
-        results = asyncio.run(tavily_search(
-            query, configurable.tavily_api_key))
+        results = await tavily_search(query, configurable.tavily_api_key)
         all_results.extend(results)
         sources_gathered = [
             {"label": r["title"], "short_url": r["url"],
