@@ -4,20 +4,20 @@ from pydantic import BaseModel, Field
 
 class SearchQueryList(BaseModel):
     query: List[str] = Field(
-        description="A list of search queries to be used for web research."
+        description="用于网络研究的搜索查询列表。"
     )
     rationale: str = Field(
-        description="A brief explanation of why these queries are relevant to the research topic."
+        description="简要说明为什么这些查询与研究主题相关。"
     )
 
 
 class Reflection(BaseModel):
     is_sufficient: bool = Field(
-        description="Whether the provided summaries are sufficient to answer the user's question."
+        description="提供的摘要是否足以回答用户的问题。"
     )
     knowledge_gap: str = Field(
-        description="A description of what information is missing or needs clarification."
+        description="缺少什么信息或需要澄清什么的描述。"
     )
     follow_up_queries: List[str] = Field(
-        description="A list of follow-up queries to address the knowledge gap."
+        description="解决知识空白的后续查询列表。"
     )

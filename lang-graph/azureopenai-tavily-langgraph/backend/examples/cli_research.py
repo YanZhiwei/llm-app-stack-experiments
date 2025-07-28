@@ -1,16 +1,18 @@
-from langchain_core.messages import HumanMessage
-from agent.state import OverallState
-from agent.graph import graph
-import logging
 import argparse
+import logging
 import os
 import sys
+
+from agent.graph import graph
+from agent.state import OverallState
+from langchain_core.messages import HumanMessage
 
 sys.path.insert(0, os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../src')))
 
 
 def check_env():
+    """检查必需的环境变量。"""
     required_azure_vars = [
         "AZURE_OPENAI_API_KEY",
         "AZURE_OPENAI_ENDPOINT",
@@ -27,7 +29,7 @@ def check_env():
 
 
 def main() -> None:
-    """Run the research agent from the command line."""
+    """从命令行运行研究代理。"""
     check_env()
     os.environ["LANGCHAIN_TRACING_V2"] = "false"
     os.environ["LANGCHAIN_ENDPOINT"] = ""
@@ -35,25 +37,25 @@ def main() -> None:
                         format="%(asctime)s %(levelname)s %(message)s")
     logger = logging.getLogger(__name__)
     parser = argparse.ArgumentParser(
-        description="Run the LangGraph research agent")
+        description="运行 LangGraph 研究代理")
     parser.add_argument("question", nargs="?", default=None,
-                        help="Research question")
+                        help="研究问题")
     parser.add_argument(
         "--initial-queries",
         type=int,
         default=3,
-        help="Number of initial search queries",
+        help="初始搜索查询数量",
     )
     parser.add_argument(
         "--max-loops",
         type=int,
         default=2,
-        help="Maximum number of research loops",
+        help="最大研究循环数",
     )
     parser.add_argument(
         "--reasoning-model",
         default="gpt-4o-mini",  # 默认用 AzureOpenAI 部署名
-        help="Model for the final answer",
+        help="最终答案的模型",
     )
     args = parser.parse_args()
 

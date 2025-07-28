@@ -4,33 +4,33 @@ import pathlib
 from fastapi import FastAPI, Response
 from fastapi.staticfiles import StaticFiles
 
-# Define the FastAPI app
+# 定义 FastAPI 应用
 app = FastAPI()
 
 
 def create_frontend_router(build_dir="frontend/dist"):
-    """Creates a router to serve the React frontend.
+    """创建用于提供 React 前端的路由器。
 
-    Args:
-        build_dir: Path to the React build directory relative to the project root.
+    参数:
+        build_dir: 相对于项目根目录的 React 构建目录路径。
 
-    Returns:
-        A Starlette application serving the frontend.
+    返回:
+        提供前端的 Starlette 应用程序。
     """
-    # Get the project root directory (two levels up from backend)
+    # 获取项目根目录（从后端向上两级）
     project_root = pathlib.Path(__file__).parent.parent.parent.parent
     build_path = project_root / build_dir
 
     if not build_path.is_dir() or not (build_path / "index.html").is_file():
         print(
-            f"WARN: Frontend build directory not found or incomplete at {build_path}. Serving frontend will likely fail."
+            f"警告: 在 {build_path} 未找到前端构建目录或不完整。提供前端可能会失败。"
         )
-        # Return a dummy router if build isn't ready
+        # 如果构建未准备好，返回虚拟路由器
         from starlette.routing import Route
 
         async def dummy_frontend(request):
             return Response(
-                "Frontend not built. Run 'npm run build' in the frontend directory.",
+                "前端未构建。在前端目录中运行 'npm run build'。",
                 media_type="text/plain",
                 status_code=503,
             )
@@ -40,7 +40,7 @@ def create_frontend_router(build_dir="frontend/dist"):
     return StaticFiles(directory=build_path, html=True)
 
 
-# Mount the frontend under /app to not conflict with the LangGraph API routes
+# 将前端挂载到 /app 下以避免与 LangGraph API 路由冲突
 app.mount(
     "/app",
     create_frontend_router(),

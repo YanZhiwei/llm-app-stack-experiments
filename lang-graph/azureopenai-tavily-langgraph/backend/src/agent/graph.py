@@ -40,7 +40,7 @@ required_azure_vars = [
 missing_vars = [var for var in required_azure_vars if not os.getenv(var)]
 if missing_vars:
     raise ValueError(
-        f"Missing Azure OpenAI environment variables: {', '.join(missing_vars)}")
+        f"缺少 Azure OpenAI 环境变量: {', '.join(missing_vars)}")
 
 
 load_dotenv(encoding="utf-8")
@@ -67,17 +67,16 @@ def create_llm_from_config(configurable):
 
 
 def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerationState:
-    """LangGraph node that generates search queries based on the User's question.
+    """基于用户问题生成搜索查询的 LangGraph 节点。
 
-    Uses Gemini 2.0 Flash to create an optimized search queries for web research based on
-    the User's question.
+    使用 Azure OpenAI 为网络研究创建优化的搜索查询，基于用户的问题。
 
-    Args:
-        state: Current graph state containing the User's question
-        config: Configuration for the runnable, including LLM provider settings
+    参数:
+        state: 包含用户问题的当前图状态
+        config: 可运行配置，包括 LLM 提供商设置
 
-    Returns:
-        Dictionary with state update, including search_query key containing the generated queries
+    返回:
+        包含状态更新的字典，包括包含生成查询的 search_query 键
     """
     logger.info("🔍 [deepresearcher] 生成搜索查询...")
     configurable = Configuration.from_runnable_config(config)
@@ -105,19 +104,19 @@ def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerati
 
 
 async def tavily_search(query, api_key):
-    """LangGraph node that performs web research using Tavily.
+    """使用 Tavily 执行网络研究的 LangGraph 节点。
 
-    Executes a web search using Tavily.
+    使用 Tavily 执行网络搜索。
 
-    Args:
-        query: The search query to perform.
-        api_key: The Tavily API key.
+    参数:
+        query: 要执行的搜索查询。
+        api_key: Tavily API 密钥。
 
-    Returns:
-        A list of search results from Tavily.
+    返回:
+        来自 Tavily 的搜索结果列表。
     """
     import asyncio
-    
+
     def _sync_tavily_search(query, api_key):
         client = TavilyClient(api_key=api_key)
         response = client.search(query, search_depth="basic", max_results=3)
@@ -129,15 +128,15 @@ async def tavily_search(query, api_key):
                 'content': item.get('content', '')[:500]
             })
         return results
-    
+
     # Run the blocking Tavily search in a separate thread
     return await asyncio.to_thread(_sync_tavily_search, query, api_key)
 
 
 def continue_to_web_research(state: QueryGenerationState):
-    """LangGraph node that sends the search queries to the web research node.
+    """将搜索查询发送到网络研究节点的 LangGraph 节点。
 
-    This is used to spawn n number of web research nodes, one for each search query.
+    这用于生成 n 个网络研究节点，每个搜索查询一个。
     """
     return [
         Send("web_research", {"search_query": search_query, "id": int(idx)})
@@ -168,22 +167,21 @@ async def web_research(state: WebSearchState, config: RunnableConfig) -> dict:
             "sources_gathered": sources_gathered,
         }
     raise ValueError(
-        "Tavily API Key is not set. Please set TAVILY_API_KEY environment variable.")
+        "未设置 Tavily API 密钥。请设置 TAVILY_API_KEY 环境变量。")
 
 
 def reflection(state: OverallState, config: RunnableConfig) -> dict:
-    """LangGraph node that identifies knowledge gaps and generates potential follow-up queries.
+    """识别知识空白并生成潜在后续查询的 LangGraph 节点。
 
-    Analyzes the current summary to identify areas for further research and generates
-    potential follow-up queries. Uses structured output to extract
-    the follow-up query in JSON format.
+    分析当前摘要以识别需要进一步研究的领域，并生成潜在的后续查询。
+    使用结构化输出来提取 JSON 格式的后续查询。
 
-    Args:
-        state: Current graph state containing the running summary and research topic
-        config: Configuration for the runnable, including LLM provider settings
+    参数:
+        state: 包含运行摘要和研究主题的当前图状态
+        config: 可运行配置，包括 LLM 提供商设置
 
-    Returns:
-        Dictionary with state update, including search_query key containing the generated follow-up query
+    返回:
+        包含状态更新的字典，包括包含生成的后续查询的 search_query 键
     """
     logger.info("🤔 [deepresearcher] 反思分析中...")
     configurable = Configuration.from_runnable_config(config)
@@ -230,17 +228,17 @@ def evaluate_research(
     state: ReflectionState,
     config: RunnableConfig,
 ) -> OverallState:
-    """LangGraph routing function that determines the next step in the research flow.
+    """确定研究流程中下一步的 LangGraph 路由函数。
 
-    Controls the research loop by deciding whether to continue gathering information
-    or to finalize the summary based on the configured maximum number of research loops.
+    通过决定是继续收集信息还是基于配置的最大研究循环数来最终确定摘要，
+    从而控制研究循环。
 
-    Args:
-        state: Current graph state containing the research loop count
-        config: Configuration for the runnable, including max_research_loops setting
+    参数:
+        state: 包含研究循环计数的当前图状态
+        config: 可运行配置，包括 max_research_loops 设置
 
-    Returns:
-        String literal indicating the next node to visit ("web_research" or "finalize_summary")
+    返回:
+        指示下一个要访问的节点的字符串字面量（"web_research" 或 "finalize_summary"）
     """
     configurable = Configuration.from_runnable_config(config)
     max_research_loops = (
@@ -264,17 +262,16 @@ def evaluate_research(
 
 
 def finalize_answer(state: OverallState, config: RunnableConfig) -> dict:
-    """LangGraph node that finalizes the research summary.
+    """最终确定研究摘要的 LangGraph 节点。
 
-    Prepares the final output by deduplicating and formatting sources, then
-    combining them with the running summary to create a well-structured
-    research report with proper citations.
+    通过去重和格式化源，然后将它们与运行摘要结合，
+    创建结构良好的研究报告，并带有适当的引用。
 
-    Args:
-        state: Current graph state containing the running summary and sources gathered
+    参数:
+        state: 包含运行摘要和收集源的当前图状态
 
-    Returns:
-        Dictionary with state update, including running_summary key containing the formatted final summary with sources
+    返回:
+        包含状态更新的字典，包括包含格式化最终摘要和源的 running_summary 键
     """
     logger.info("📝 [deepresearcher] 生成最终答案...")
     configurable = Configuration.from_runnable_config(config)
@@ -307,29 +304,29 @@ def finalize_answer(state: OverallState, config: RunnableConfig) -> dict:
     }
 
 
-# Create our Agent Graph
+# 创建我们的代理图
 builder = StateGraph(OverallState, config_schema=Configuration)
 
-# Define the nodes we will cycle between
+# 定义我们将在其间循环的节点
 builder.add_node("generate_query", generate_query)
 builder.add_node("web_research", web_research)
 builder.add_node("reflection", reflection)
 builder.add_node("finalize_answer", finalize_answer)
 
-# Set the entrypoint as `generate_query`
-# This means that this node is the first one called
+# 将入口点设置为 `generate_query`
+# 这意味着这个节点是第一个被调用的
 builder.add_edge(START, "generate_query")
-# Add conditional edge to continue with search queries in a parallel branch
+# 添加条件边以在并行分支中继续搜索查询
 builder.add_conditional_edges(
     "generate_query", continue_to_web_research, ["web_research"]
 )
-# Reflect on the web research
+# 反思网络研究
 builder.add_edge("web_research", "reflection")
-# Evaluate the research
+# 评估研究
 builder.add_conditional_edges(
     "reflection", evaluate_research, ["web_research", "finalize_answer"]
 )
-# Finalize the answer
+# 最终确定答案
 builder.add_edge("finalize_answer", END)
 
 graph = builder.compile(name="pro-search-agent")

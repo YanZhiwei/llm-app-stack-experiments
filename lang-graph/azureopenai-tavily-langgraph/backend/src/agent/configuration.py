@@ -6,31 +6,31 @@ from pydantic import BaseModel, Field
 
 
 class Configuration(BaseModel):
-    """The configuration for the agent."""
+    """代理的配置。"""
 
     query_generator_model: str = Field(
         default="gemini-2.0-flash",
-        description="The name of the language model to use for the agent's query generation."
+        description="用于代理查询生成的语言模型名称。"
     )
 
     reflection_model: str = Field(
         default="gemini-2.5-flash",
-        description="The name of the language model to use for the agent's reflection."
+        description="用于代理反思的语言模型名称。"
     )
 
     answer_model: str = Field(
         default="gemini-2.5-pro",
-        description="The name of the language model to use for the agent's answer."
+        description="用于代理回答的语言模型名称。"
     )
 
     number_of_initial_queries: int = Field(
         default=3,
-        description="The number of initial search queries to generate."
+        description="要生成的初始搜索查询数量。"
     )
 
     max_research_loops: int = Field(
         default=2,
-        description="The maximum number of research loops to perform."
+        description="要执行的最大研究循环数。"
     )
 
     # Azure OpenAI 配置
@@ -60,12 +60,12 @@ class Configuration(BaseModel):
     def from_runnable_config(
         cls, config: Optional[RunnableConfig] = None
     ) -> "Configuration":
-        """Create a Configuration instance from a RunnableConfig."""
+        """从 RunnableConfig 创建 Configuration 实例。"""
         configurable = (
             config["configurable"] if config and "configurable" in config else {}
         )
 
-        # Get raw values from environment or config
+        # 从环境或配置获取原始值
         raw_values: dict[str, Any] = {
             name: os.environ.get(name.upper(), configurable.get(name))
             for name in cls.model_fields.keys()
@@ -75,7 +75,7 @@ class Configuration(BaseModel):
             raw_values["azure_openai_deployment"] = os.environ.get(
                 "AZURE_OPENAI_CHAT_DEPLOYMENT_NAME")
 
-        # Filter out None values
+        # 过滤掉 None 值
         values = {k: v for k, v in raw_values.items() if v is not None}
 
         return cls(**values)
