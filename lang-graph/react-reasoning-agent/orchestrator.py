@@ -1,32 +1,29 @@
 import time
 
+from config import config
 from langgraph.graph import END, StateGraph
 from langgraph.prebuilt import ToolNode
-
-from agents import react_executor_agent, react_reasoning_agent
-from config import config
 from state import ReActState
 from tools import get_react_tools
 
+from agents import react_executor_agent, react_reasoning_agent
+
 
 def should_continue(state: ReActState) -> str:
-    """决定ReAct推理是否继续"""
+    """简化的决策函数 - 使用bind_tools方式"""
     next_action = state.get("next_action", "")
 
     # 如果明确指示结束
     if next_action == "end":
         return "end"
 
-    # 检查最后一条消息是否有工具调用
+    # 检查是否有工具调用
     messages = state["messages"]
     if messages:
         last_message = messages[-1]
-        if hasattr(last_message, 'tool_calls') and getattr(last_message, 'tool_calls', None):
+        tool_calls = getattr(last_message, 'tool_calls', None)
+        if tool_calls:
             return "tools"
-
-    # 检查是否需要继续推理
-    if next_action == "continue_reasoning":
-        return "reasoning"
 
     # 检查迭代次数
     current_iter = state.get("current_iteration", 0)
@@ -39,39 +36,27 @@ def should_continue(state: ReActState) -> str:
     return "reasoning"
 
 
-def should_continue_after_tools(state: ReActState) -> str:
-    """工具执行后的决策函数"""
-    next_action = state.get("next_action", "")
-
-    if next_action == "end":
-        return "end"
-
-    # 工具执行后必须先处理结果，即使达到最大迭代次数
-    # 执行器会负责判断是否结束推理
-    return "executor"
-
-
 class ReActOrchestrator:
-    """ReAct推理系统编排器"""
+    """简化的ReAct推理系统编排器 - 使用bind_tools方式"""
 
     def __init__(self):
         self.tools = get_react_tools()
-        # 使用普通的工具节点
+        # 使用LangGraph的ToolNode，自动处理工具调用
         self.tool_node = ToolNode(self.tools)
 
     def build_workflow(self):
-        """构建ReAct推理工作流"""
+        """构建简化的ReAct推理工作流"""
         workflow = StateGraph(ReActState)
 
-        # 添加节点
+        # 添加节点 - 利用LangGraph内置功能
         workflow.add_node("reasoning", react_reasoning_agent)
-        workflow.add_node("tools", self.tool_node)
+        workflow.add_node("tools", self.tool_node)  # ToolNode自动处理工具调用
         workflow.add_node("executor", react_executor_agent)
 
         # 设置入口点
         workflow.set_entry_point("reasoning")
 
-        # 添加条件边
+        # 简化的条件边 - 让LangGraph自动处理工具调用
         workflow.add_conditional_edges(
             "reasoning",
             should_continue,
@@ -82,15 +67,10 @@ class ReActOrchestrator:
             }
         )
 
-        workflow.add_conditional_edges(
-            "tools",
-            should_continue_after_tools,
-            {
-                "executor": "executor",
-                "end": END
-            }
-        )
+        # 工具执行后直接到执行器
+        workflow.add_edge("tools", "executor")
 
+        # 执行器后继续推理或结束
         workflow.add_conditional_edges(
             "executor",
             should_continue,
@@ -100,5 +80,4 @@ class ReActOrchestrator:
             }
         )
 
-        # 🆕 编译工作流，使用基础配置
         return workflow.compile()
