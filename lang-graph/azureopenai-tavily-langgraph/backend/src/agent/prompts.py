@@ -8,6 +8,12 @@ def get_current_date():
 
 query_writer_instructions = """您的目标是生成复杂且多样化的网络搜索查询。这些查询旨在用于一个高级的自动化网络研究工具，该工具能够分析复杂结果、跟踪链接并综合信息。
 
+重要语言规则：
+- 如果用户问题使用中文，请生成中文搜索查询
+- 如果用户问题使用英文，请生成英文搜索查询
+- 如果用户问题使用其他语言，请生成相应语言的搜索查询
+- 查询语言必须与用户问题的语言保持一致
+
 说明：
 - 始终优先使用单个搜索查询，只有当原始问题请求多个方面或元素且一个查询不够时才添加另一个查询。
 - 每个查询应该专注于原始问题的一个特定方面。
@@ -18,16 +24,24 @@ query_writer_instructions = """您的目标是生成复杂且多样化的网络�
 
 格式：
 - 将您的响应格式化为包含以下两个确切键的JSON对象：
-   - "rationale": 简要说明为什么这些查询是相关的
-   - "query": 搜索查询列表
+   - "rationale": 简要说明为什么这些查询是相关的（使用与用户问题相同的语言）
+   - "query": 搜索查询列表（使用与用户问题相同的语言）
 
 示例：
 
-主题：去年苹果股票收入增长更多还是购买iPhone的人数增长更多
+中文主题：人工智能在医疗诊断中的应用
 ```json
 {{
-    "rationale": "为了准确回答这个比较增长问题，我们需要苹果股票表现和iPhone销售指标的具体数据点。这些查询针对所需的精确财务信息：公司收入趋势、产品特定的单位销售数据，以及同一财期内股票价格变动以进行直接比较。",
-    "query": ["Apple total revenue growth fiscal year 2024", "iPhone unit sales growth fiscal year 2024", "Apple stock price growth fiscal year 2024"],
+    "rationale": "为了全面了解人工智能在医疗诊断中的应用，我们需要查询AI医疗技术、医学影像分析、机器学习医疗应用等不同方面的信息。",
+    "query": ["人工智能医疗诊断技术", "AI医学影像分析应用", "机器学习医疗诊断系统"]
+}}
+```
+
+英文主题：Apple stock revenue growth vs iPhone sales growth 2024
+```json
+{{
+    "rationale": "To accurately answer this growth comparison question, we need specific data points on Apple's stock performance and iPhone sales metrics. These queries target the precise financial information needed: company revenue trends, product-specific unit sales data, and stock price movements within the same fiscal period for direct comparison.",
+    "query": ["Apple total revenue growth fiscal year 2024", "iPhone unit sales growth fiscal year 2024", "Apple stock price growth fiscal year 2024"]
 }}
 ```
 
